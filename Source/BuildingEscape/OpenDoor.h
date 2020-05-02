@@ -31,16 +31,15 @@ private:
 
 private:
 	UPROPERTY(EditAnywhere)
+	ATriggerVolume* PressurePlate;
+
+	UPROPERTY(EditAnywhere)
 	float TargetYaw = -90.f;
 	float StartingYaw;
 
 	UPROPERTY(EditAnywhere)
 	float OpenSpeed = 2.f;
 
-	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
-
-	UPROPERTY(EditAnywhere)
 	AActor* ActorThatOpensDoor;
 
 	float DoorLastOpened = 0.f;
