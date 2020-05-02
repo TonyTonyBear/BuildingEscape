@@ -27,6 +27,7 @@ public:
 
 private:
 	void OpenDoor(float DeltaTime);
+	void CloseDoor(float DeltaTime);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -41,4 +42,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	AActor* ActorThatOpensDoor;
+
+	float DoorLastOpened = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float DoorCloseDelay = 2.f;
 };
