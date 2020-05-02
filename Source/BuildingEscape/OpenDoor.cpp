@@ -19,10 +19,6 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	FRotator CurrentRotation = GetOwner()->GetActorRotation();
-	CurrentRotation.Yaw = -90.f;
-	GetOwner()->SetActorRotation(CurrentRotation);
 	
 }
 
@@ -32,6 +28,21 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	// FRotator CurrentRotation = GetOwner()->GetActorRotation();
+	// CurrentRotation.Yaw = -90.f;
+	// GetOwner()->SetActorRotation(CurrentRotation);
+
+	float CurrentYaw = GetOwner()->GetActorRotation().Yaw;
+	UE_LOG(LogTemp, Warning, TEXT("The current yaw of the door is: %f"), CurrentYaw);
+
+	// Lerp the door this frame. - NOTE: THIS IS NOT LERPING. THIS IS USING AN EXPONENTIAL VERSION.
+	FRotator OldRotation = GetOwner()->GetActorRotation();
+	FRotator TargetRotation = OldRotation;
+
+	TargetRotation.Yaw = TargetYaw;
+	
+	FRotator CurrentRotation = FMath::Lerp(OldRotation, TargetRotation, 0.1f);
+
+	GetOwner()->SetActorRotation(CurrentRotation);
 }
 
