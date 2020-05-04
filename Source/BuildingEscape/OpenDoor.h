@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "CoreMinimal.h"
 #include "Engine/TriggerVolume.h"
+
 #include "OpenDoor.generated.h"
 
 
@@ -16,26 +17,22 @@ class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UOpenDoor();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 private:
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
+	float CalculateTotalMassInsideTrigger() const;
 
-private:
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
+	ATriggerVolume* PressurePlate = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float TargetYaw = -90.f;
-	float StartingYaw;
 
 	UPROPERTY(EditAnywhere)
 	float OpenSpeed = 2.f;
@@ -43,12 +40,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float MassThreshold = 50.f;
 
-	AActor* ActorThatOpensDoor;
-
-	float DoorLastOpened = 0.f;
-
 	UPROPERTY(EditAnywhere)
 	float DoorCloseDelay = 2.f;
 
-	float CalculateTotalMassInsideTrigger() const;
+	float DoorLastOpened = 0.f;
+	float StartingYaw;
 };

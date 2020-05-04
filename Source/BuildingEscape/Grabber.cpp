@@ -64,6 +64,8 @@ void UGrabber::Grab()
 
 	if (Hit.GetActor())
 	{
+		if (!PhysicsHandle) return;
+
 		PhysicsHandle->GrabComponentAtLocation
 		(
 			ComponentToGrab,
@@ -75,16 +77,17 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	if (PhysicsHandle->GrabbedComponent)
-	{
-		PhysicsHandle->ReleaseComponent();
-	}
+	if (!PhysicsHandle) return;
+
+	PhysicsHandle->ReleaseComponent();
 }
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!PhysicsHandle) return;
 
 	if (PhysicsHandle->GrabbedComponent)
 	{
