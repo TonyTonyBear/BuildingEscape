@@ -24,8 +24,14 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	// Cache Physics handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	
+
+	if (!PhysicsHandle)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PhysicsHandleComponent could not be found on %s. Verify that component is attached to actor."), *(GetOwner()->GetName()));
+	}
 }
 
 
