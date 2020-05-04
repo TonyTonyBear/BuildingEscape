@@ -37,6 +37,7 @@ void UGrabber::BeginPlay()
 	{
 		// Bind Actions
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 	else
 	{
@@ -50,6 +51,10 @@ void UGrabber::Grab()
 	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
 }
 
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
+}
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
