@@ -3,6 +3,7 @@
 
 #include "OpenDoor.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/AudioComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
@@ -26,12 +27,23 @@ void UOpenDoor::BeginPlay()
 	StartingYaw = GetOwner()->GetActorRotation().Yaw;
 	TargetYaw += StartingYaw;
 
+	CacheComponents();
+}
+
+void UOpenDoor::CacheComponents()
+{
+	AudioComponent = GetOwner()->FindComponentByClass<UAudioComponent>();
+
+	if (!AudioComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Could not find AudioComponent. Make sure it is attached to %s"), *(GetOwner()->GetName()));
+	}
+
 	if (!PressurePlate)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s has an OpenDoor component attached, but PressurePlate is not set."), *GetOwner()->GetName());
 	}
 }
-
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -57,6 +69,14 @@ void UOpenDoor::OpenDoor(float DeltaTime)
 	FRotator CurrentRotation = GetOwner()->GetActorRotation();
 	CurrentRotation.Yaw = FMath::FInterpTo(CurrentRotation.Yaw, TargetYaw, DeltaTime, OpenSpeed);
 	GetOwner()->SetActorRotation(CurrentRotation);
+
+	if (AudioComponent && !bOpeningSoundHasPlayed)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Audio playing in OpenDoor."));
+		AudioComponent->Play();
+		bOpeningSoundHasPlayed = true;
+		bClosingSoundHasPlayed = false;
+	}
 }
 
 void UOpenDoor::CloseDoor(float DeltaTime)
@@ -64,6 +84,14 @@ void UOpenDoor::CloseDoor(float DeltaTime)
 	FRotator CurrentRotation = GetOwner()->GetActorRotation();
 	CurrentRotation.Yaw = FMath::FInterpTo(CurrentRotation.Yaw, StartingYaw, DeltaTime, OpenSpeed);
 	GetOwner()->SetActorRotation(CurrentRotation);
+
+	if (AudioComponent && !bClosingSoundHasPlayed)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Audio playing in CloseDoor."));
+		AudioComponent->Play();
+		bOpeningSoundHasPlayed = false;
+		bClosingSoundHasPlayed = true;
+	}
 }
 
 float UOpenDoor::CalculateTotalMassInsideTrigger() const

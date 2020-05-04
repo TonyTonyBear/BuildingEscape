@@ -24,12 +24,16 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	void CacheComponents();
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
 	float CalculateTotalMassInsideTrigger() const;
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate = nullptr;
+
+	UPROPERTY()
+	UAudioComponent* AudioComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float TargetYaw = -90.f;
@@ -45,4 +49,7 @@ private:
 
 	float DoorLastOpened = 0.f;
 	float StartingYaw;
+
+	bool bOpeningSoundHasPlayed = false;
+	bool bClosingSoundHasPlayed = true;
 };
