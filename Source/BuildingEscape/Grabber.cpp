@@ -58,19 +58,8 @@ void UGrabber::CacheComponents()
 
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
-
+	CalculateVectorsAndRotators(); // Call this before GetPhysicsBodyHit() to prevent const error.
 	FHitResult Hit = GetPhysicsBodyHit();
-
-	// Get player viewpoint
-	FVector PlayerLocation;
-	FRotator PlayerRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
-
-	// Raycast out some distance.
-	FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
-
-	// TODO: Perform pickup actions.
 	UPrimitiveComponent* ComponentToGrab = Hit.GetComponent();
 
 	if (Hit.GetActor())
@@ -101,39 +90,13 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	if (PhysicsHandle->GrabbedComponent)
 	{
-		// Get player viewpoint
-		FVector PlayerLocation;
-		FRotator PlayerRotation;
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
-
-		// Raycast out some distance.
-		FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
-
+		CalculateVectorsAndRotators(); // Only calculate before we use an in-scope vector or rotator.
 		PhysicsHandle->SetTargetLocation(LineTraceEnd);
 	}
 }
 
 FHitResult UGrabber::GetPhysicsBodyHit() const
 {
-	// Get player viewpoint
-		FVector PlayerLocation;
-		FRotator PlayerRotation;
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
-
-		// Raycast out some distance.
-		FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
-
-	DrawDebugLine(
-		GetWorld(), 
-		PlayerLocation, 
-		LineTraceEnd, 
-		FColor::Green, 
-		false, 
-		0.f, 
-		0, 
-		5.f
-	);
-
 	// Report back on what was hit.
 	FHitResult Hit;
 	FCollisionQueryParams QueryParams(TEXT(""), false, GetOwner()); // We aren't naming this trace, we aren't using visiblity collisions, and we're ignoring any hits on whatever has this component attached.
@@ -147,5 +110,11 @@ FHitResult UGrabber::GetPhysicsBodyHit() const
 	);
 
 	return Hit;
+}
+
+void UGrabber::CalculateVectorsAndRotators()
+{
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
+	LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
 }
 

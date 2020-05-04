@@ -30,10 +30,14 @@ private:
 	void Grab();
 	void Release();
 	FHitResult GetPhysicsBodyHit() const;
+	void CalculateVectorsAndRotators();
 
 	UPROPERTY(EditAnywhere)
 	float Reach = 100.f;
 
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	UInputComponent* InputComponent = nullptr;
+	FVector PlayerLocation;
+	FRotator PlayerRotation;
+	FVector LineTraceEnd;
 };
