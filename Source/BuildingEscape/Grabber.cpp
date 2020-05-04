@@ -14,8 +14,6 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -24,15 +22,12 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Cache Attached Components
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	CacheComponents();
+	BindActions();
+}
 
-	if (!PhysicsHandle)
-	{
-		UE_LOG(LogTemp, Error, TEXT("PhysicsHandleComponent could not be found on %s. Verify that component is attached to actor."), *(GetOwner()->GetName()));
-	}
-
+void UGrabber::BindActions()
+{
 	if (InputComponent)
 	{
 		// Bind Actions
@@ -41,25 +36,31 @@ void UGrabber::BeginPlay()
 	}
 	else
 	{
+		UE_LOG(LogTemp, Error, TEXT("Unable to bind actions to InputComponent. Component is missing."));
+	}
+}
+
+void UGrabber::CacheComponents()
+{
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+
+	if (!PhysicsHandle)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PhysicsHandleComponent could not be found on %s. Verify that component is attached to actor."), *(GetOwner()->GetName()));
+	}
+
+	if (!InputComponent)
+	{
 		UE_LOG(LogTemp, Error, TEXT("InputComponent could not be found on %s. Verify that component is attached to actor."), *(GetOwner()->GetName()));
 	}
-	
 }
 
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
-}
 
-void UGrabber::Release()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
-}
-
-// Called every frame
-void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	FHitResult Hit = GetPhysicsBodyHit();
 
 	// Get player viewpoint
 	FVector PlayerLocation;
@@ -68,6 +69,59 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	// Raycast out some distance.
 	FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
+
+	// TODO: Perform pickup actions.
+	UPrimitiveComponent* ComponentToGrab = Hit.GetComponent();
+
+	if (Hit.GetActor())
+	{
+		PhysicsHandle->GrabComponentAtLocation
+		(
+			ComponentToGrab,
+			NAME_None,
+			LineTraceEnd
+		);
+	}
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Releasing..."));
+
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		PhysicsHandle->ReleaseComponent();
+	}
+}
+
+// Called every frame
+void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		// Get player viewpoint
+		FVector PlayerLocation;
+		FRotator PlayerRotation;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
+
+		// Raycast out some distance.
+		FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
+
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+}
+
+FHitResult UGrabber::GetPhysicsBodyHit() const
+{
+	// Get player viewpoint
+		FVector PlayerLocation;
+		FRotator PlayerRotation;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation, OUT PlayerRotation);
+
+		// Raycast out some distance.
+		FVector LineTraceEnd = PlayerLocation + (PlayerRotation.Vector() * Reach);
 
 	DrawDebugLine(
 		GetWorld(), 
@@ -92,11 +146,6 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		QueryParams
 	);
 
-	AActor* HitActor = Hit.GetActor();
-
-	if(HitActor)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s was found by line trace."), *(HitActor->GetName()));
-	}
+	return Hit;
 }
 
