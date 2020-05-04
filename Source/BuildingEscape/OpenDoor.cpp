@@ -42,7 +42,7 @@ void UOpenDoor::CacheComponents()
 		UE_LOG(LogTemp, Error, TEXT("Could not find AudioComponent. Make sure it is attached to %s"), *(GetOwner()->GetName()));
 	}
 
-	if (!PressurePlate)
+	if (PressurePlates.Num() < 1)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s has an OpenDoor component attached, but PressurePlate is not set."), *GetOwner()->GetName());
 	}
@@ -117,15 +117,20 @@ void UOpenDoor::CloseDoor(float DeltaTime)
 float UOpenDoor::CalculateTotalMassInsideTrigger() const
 {
 	float TotalMass = 0.f;
-	TArray<AActor*> OverlappingActors;
+	TArray<AActor*> TotalOverlaps;
+	TArray<AActor*> PlateOverlaps;
 
-	if (!PressurePlate) return -1.f;
-	
-	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
+	if (PressurePlates.Num() < 1) return -1.f;
 
-	for (int i = 0; i < OverlappingActors.Num(); i++)
+	for (ATriggerVolume* Volume : PressurePlates)
 	{
-		TotalMass += OverlappingActors[i]->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		Volume->GetOverlappingActors(OUT PlateOverlaps);
+		TotalOverlaps.Append(PlateOverlaps);	
+	}
+
+	for (int i = 0; i < TotalOverlaps.Num(); i++)
+	{
+		TotalMass += TotalOverlaps[i]->FindComponentByClass<UPrimitiveComponent>()->GetMass();
 	}
 
 	return TotalMass;

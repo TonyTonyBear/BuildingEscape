@@ -37,7 +37,7 @@ private:
 	float CalculateTotalMassInsideTrigger() const;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate = nullptr;
+	TArray<ATriggerVolume*> PressurePlates;
 
 	UPROPERTY()
 	UAudioComponent* AudioComponent = nullptr;
