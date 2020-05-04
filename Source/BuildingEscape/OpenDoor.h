@@ -40,10 +40,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	float OpenSpeed = 2.f;
 
+	UPROPERTY(EditAnywhere)
+	float MassThreshold = 50.f;
+
 	AActor* ActorThatOpensDoor;
 
 	float DoorLastOpened = 0.f;
 
 	UPROPERTY(EditAnywhere)
 	float DoorCloseDelay = 2.f;
+
+	float CalculateTotalMassInsideTrigger() const;
 };
