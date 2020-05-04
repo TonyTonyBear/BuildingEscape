@@ -24,14 +24,30 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Cache Physics handle
+	// Cache Attached Components
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 
 	if (!PhysicsHandle)
 	{
 		UE_LOG(LogTemp, Error, TEXT("PhysicsHandleComponent could not be found on %s. Verify that component is attached to actor."), *(GetOwner()->GetName()));
 	}
+
+	if (InputComponent)
+	{
+		// Bind Actions
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("InputComponent could not be found on %s. Verify that component is attached to actor."), *(GetOwner()->GetName()));
+	}
+	
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grabbing..."));
 }
 
 
