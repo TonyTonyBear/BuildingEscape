@@ -8,6 +8,13 @@
 
 #include "OpenDoor.generated.h"
 
+// Door Opening Behaviours
+UENUM(BlueprintType)
+enum class EDoorOpenBehaviorEnum : uint8
+{
+	EBehaviourRotate UMETA(DisplayName="Rotate Around Pivot"),
+	EBehaviourTranslate UMETA(DisplayName="Translate to a new Location"),
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
@@ -47,8 +54,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DoorCloseDelay = 2.f;
 
+	UPROPERTY(EditAnywhere)
+	FVector TargetRelativeLocation;
+
+	UPROPERTY(EditAnywhere)
+	EDoorOpenBehaviorEnum DoorBehaviour;
+
 	float DoorLastOpened = 0.f;
 	float StartingYaw;
+	FVector StartingLocation;
 
 	bool bOpeningSoundHasPlayed = false;
 	bool bClosingSoundHasPlayed = true;

@@ -24,8 +24,11 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// TODO: Break this into its own function.
 	StartingYaw = GetOwner()->GetActorRotation().Yaw;
 	TargetYaw += StartingYaw;
+	StartingLocation = GetOwner()->GetActorLocation();
+	TargetRelativeLocation += StartingLocation;
 
 	CacheComponents();
 }
@@ -66,13 +69,22 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::OpenDoor(float DeltaTime)
 {
-	FRotator CurrentRotation = GetOwner()->GetActorRotation();
-	CurrentRotation.Yaw = FMath::FInterpTo(CurrentRotation.Yaw, TargetYaw, DeltaTime, OpenSpeed);
-	GetOwner()->SetActorRotation(CurrentRotation);
+	if (DoorBehaviour == EDoorOpenBehaviorEnum::EBehaviourRotate)
+	{
+		FRotator CurrentRotation = GetOwner()->GetActorRotation();
+		CurrentRotation.Yaw = FMath::FInterpTo(CurrentRotation.Yaw, TargetYaw, DeltaTime, OpenSpeed);
+		GetOwner()->SetActorRotation(CurrentRotation);
+	}
+	else
+	{
+		FVector CurrentLocation = GetOwner()->GetActorLocation();
+		CurrentLocation = FMath::VInterpTo(CurrentLocation, TargetRelativeLocation, DeltaTime, OpenSpeed);
+		GetOwner()->SetActorLocation(CurrentLocation);
+	}
+	
 
 	if (AudioComponent && !bOpeningSoundHasPlayed)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Audio playing in OpenDoor."));
 		AudioComponent->Play();
 		bOpeningSoundHasPlayed = true;
 		bClosingSoundHasPlayed = false;
@@ -81,13 +93,21 @@ void UOpenDoor::OpenDoor(float DeltaTime)
 
 void UOpenDoor::CloseDoor(float DeltaTime)
 {
-	FRotator CurrentRotation = GetOwner()->GetActorRotation();
-	CurrentRotation.Yaw = FMath::FInterpTo(CurrentRotation.Yaw, StartingYaw, DeltaTime, OpenSpeed);
-	GetOwner()->SetActorRotation(CurrentRotation);
+	if (DoorBehaviour == EDoorOpenBehaviorEnum::EBehaviourRotate)
+	{
+		FRotator CurrentRotation = GetOwner()->GetActorRotation();
+		CurrentRotation.Yaw = FMath::FInterpTo(CurrentRotation.Yaw, StartingYaw, DeltaTime, OpenSpeed);
+		GetOwner()->SetActorRotation(CurrentRotation);
+	}
+	else
+	{
+		FVector CurrentLocation = GetOwner()->GetActorLocation();
+		CurrentLocation = FMath::VInterpTo(CurrentLocation, StartingLocation, DeltaTime, OpenSpeed);
+		GetOwner()->SetActorLocation(CurrentLocation);
+	}
 
 	if (AudioComponent && !bClosingSoundHasPlayed)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Audio playing in CloseDoor."));
 		AudioComponent->Play();
 		bOpeningSoundHasPlayed = false;
 		bClosingSoundHasPlayed = true;
