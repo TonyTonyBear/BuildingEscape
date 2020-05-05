@@ -60,6 +60,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	EDoorOpenBehaviorEnum DoorBehaviour;
 
+	UPROPERTY(EditAnywhere)
+	bool bShouldForceDoorOpen = false;
+
 	float DoorLastOpened = 0.f;
 	float StartingYaw;
 	FVector StartingLocation;

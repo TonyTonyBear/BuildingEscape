@@ -55,7 +55,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	float CurrentGameTime = GetWorld()->GetTimeSeconds();
 
-	if (CalculateTotalMassInsideTrigger() >= MassThreshold)
+	if (bShouldForceDoorOpen || (CalculateTotalMassInsideTrigger() >= MassThreshold))
 	{
 		OpenDoor(DeltaTime);
 		DoorLastOpened = CurrentGameTime;
